@@ -27,8 +27,11 @@ async function createUser({
       ON CONFLICT (username) DO NOTHING 
       RETURNING *;
     `, [username, password, name, location]);
+    const { rows: [ user ] } = await client.query(`
 
-    return rows;
+`, []);
+
+    return user;
   } catch (error) {
     throw error;
   }
@@ -44,7 +47,7 @@ async function updateUser(id, fields = {}) {
   if (setString.length === 0) {
     return;
   }
-
+  
   try {
     const result = await client.query(`
       UPDATE users
@@ -52,11 +55,14 @@ async function updateUser(id, fields = {}) {
       WHERE id=${ id }
       RETURNING *;
     `, Object.values(fields));
+    const { rows: [ user ] } = await client.query(`
 
-    return result;
+    `, []);
+    return user;
   } catch (error) {
     throw error;
   }
+  
 }
 
 module.exports = {
