@@ -1,11 +1,12 @@
 // grab our client with destructuring from the export in index.js
-const { client, getAllUsers, createUser, updateUser } = require("./index");
+const { client, getAllUsers, createUser, updateUser, getAllPosts, createPost, updatePost, getPostsByUser  } = require("./index");
 
 async function dropTables() {
   try {
     console.log("Starting to drop tables...");
 
     await client.query(`
+        DROP TABLE IF EXISTS posts;
         DROP TABLE IF EXISTS users;
       `);
 
@@ -28,6 +29,14 @@ async function createTables() {
           name VARCHAR(255) NOT NULL,
           location VARCHAR(255) NOT NULL,
           active BOOLEAN DEFAULT true
+        );
+
+        CREATE TABLE posts (
+            id SERIAL PRIMARY KEY,
+            "authorId" INTEGER REFERENCES users(id) NOT NULL,
+            title VARCHAR(255) NOT NULL,
+            content TEXT NOT NULL,
+            active BOOLEAN DEFAULT true
         );
       `);
 
@@ -109,3 +118,4 @@ rebuildDB()
   .then(testDB)
   .catch(console.error)
   .finally(() => client.end());
+
