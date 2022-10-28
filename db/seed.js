@@ -8,6 +8,7 @@ const {
   updatePost,
   getAllPosts,
   getPostsByUser,
+  createTags
 } = require("./index");
 
 async function dropTables() {
@@ -49,17 +50,17 @@ async function createTables() {
         content TEXT NOT NULL,
         active BOOLEAN DEFAULT true
       );
-
       CREATE TABLE tags (
+
       id SERIAL PRIMARY KEY,
       name VARCHAR(255) UNIQUE NOT NULL
       );
-
       CREATE TABLE post_tags (
+
       "postId" INTEGER REFERENCES posts(id),
-      "tagId" INTEGER REFERENCES tags(id),
-      UNIQUE ("postId", "tagId")
-      );
+      "tagId" INTEGER REFERENCES tags(id)
+      
+    );
     `);
 
     console.log("Finished building tables!");

@@ -107,7 +107,8 @@ async function createPost({
 }
 
 async function createTags(tagList) {
-  if (tagList.length === 0) { 
+  if (tagList.length === 0) {
+    
     return; 
   }
 
@@ -122,14 +123,17 @@ async function createTags(tagList) {
   // then we can use (${ selectValues }) in our string template
 
   try {
-    // insert the tags, doing nothing on conflict
-    // returning nothing, we'll query after
+    await client.query (`INSERT INTO tags(name)
+    VALUES (${insertValues})
+    ON CONFLICT (name) DO NOTHING;`)
 
-    // select all tags where the name is in our taglist
-    // return the rows from the query
+    const{rows} = await client.query (`SELECT * FROM tags
+    WHERE name
+    IN (${selectValues});`) 
+    return rows
   } catch (error) {
     throw error;
-  }
+  }}
 
 async function updatePost(id, fields = {}) {
   // build the set string
