@@ -1,6 +1,7 @@
 const express = require('express');
 const usersRouter = express.Router();
-const { getAllUsers, getUserByUsername, createUser } = require('../db');
+const { getAllUsers, getUserByUsername, createUser, getUserById, updateUser } = require('../db');
+const { requireUser } = require('./utils');
 const jwt = require('jsonwebtoken');
 
 usersRouter.use((req, res, next) => {
@@ -74,6 +75,30 @@ usersRouter.post('/register', async (req, res, next) => {
   } catch ({ name, message }) {
     next({ name, message })
   } 
+});
+
+usersRouter.delete('/:userId', requireUser, async (req, res, next) => {
+  try {
+    const user = await getUserById(req.params.userId);
+
+    if (user && user.id === req.user.id) {
+      const updatedUser = await updateUser(user.id, { active: false });
+
+      res.send({ user: updatedUser });
+    } else {
+      // if there was a post, throw UnauthorizedUserError, otherwise throw PostNotFoundError
+      next(user ? { 
+        name: "Success",
+        message: "User has been deleted"
+      } : {
+        name: "UserNotFoundError",
+        message: "That user does not exist"
+      });
+    }
+
+  } catch ({ name, message }) {
+    next({ name, message })
+  }
 });
 
 usersRouter.get('/', async (req, res) => {
